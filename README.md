@@ -1,4 +1,4 @@
-# Multimodal Deepfake Detector (Hackathon Starter)
+# Multimodal Deepfake Detector
 
 This project provides a practical baseline for detecting potentially manipulated media across:
 
