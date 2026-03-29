@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SignalScope | Detection Method</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Manrope:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <div class="bg-grid" aria-hidden="true"></div>
+    <div class="glow glow-b" aria-hidden="true"></div>
+    <main class="page">
+      <header class="topbar reveal">
+        <a href="/" class="brand">SignalScope</a>
+        <nav class="nav">
+          <a href="/">Upload Lab</a>
+          <a href="/live">Live Camera</a>
+          <a href="/about" class="active">Method</a>
+        </nav>
+      </header>
+
+      <header class="hero reveal delay-1">
+        <p class="eyebrow">System Overview</p>
+        <h1>How This Detector Thinks</h1>
+        <p class="subtitle">
+          SignalScope combines artifact heuristics and score calibration to
+          produce interpretable deepfake risk estimates.
+        </p>
+      </header>
+
+      <section class="panel reveal delay-2 method-grid">
+        <article class="method-card">
+          <h2>Image</h2>
+          <p>
+            Measures blur, texture frequency balance, and compression block
+            boundaries to catch synthetic visual artifacts.
+          </p>
+        </article>
+        <article class="method-card">
+          <h2>Audio</h2>
+          <p>
+            Checks spectral flatness, zero-crossing regularity, and spectral
+            variability for cloned-voice signatures.
+          </p>
+        </article>
+        <article class="method-card">
+          <h2>Video</h2>
+          <p>
+            Aggregates frame-level scores and temporal consistency signals to
+            identify motion and rendering anomalies.
+          </p>
+        </article>
+        <article class="method-card wide">
+          <h2>Brief Analysis Output</h2>
+          <p>
+            Every prediction includes a short narrative summary so users can
+            quickly understand whether suspicious patterns were weak, moderate,
+            or strong.
+          </p>
+        </article>
+      </section>
+    </main>
+  </body>
+</html>

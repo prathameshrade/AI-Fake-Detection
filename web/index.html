@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SignalScope | Deepfake Analysis Studio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Manrope:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <div class="bg-grid" aria-hidden="true"></div>
+    <div class="glow glow-a" aria-hidden="true"></div>
+    <div class="glow glow-b" aria-hidden="true"></div>
+    <main class="page">
+      <header class="topbar reveal">
+        <a href="/" class="brand">SignalScope</a>
+        <nav class="nav">
+          <a href="/" class="active">Upload Lab</a>
+          <a href="/live">Live Camera</a>
+          <a href="/about">Method</a>
+        </nav>
+      </header>
+
+      <header class="hero reveal delay-1">
+        <p class="eyebrow">Digital Trust Toolkit</p>
+        <h1>Deepfake Analysis Studio</h1>
+        <p class="subtitle">
+          Run fast forensic checks on uploaded media and receive concise,
+          human-readable reasoning with confidence estimates.
+        </p>
+      </header>
+
+      <section class="panel reveal delay-2">
+        <form id="analyzeForm" class="analyze-form">
+          <div class="dropzone" id="dropzone">
+            <input id="fileInput" name="file" type="file" required />
+            <p class="drop-title">Drop media file here</p>
+            <p class="drop-note">or click to browse</p>
+            <p id="fileName" class="file-name">No file selected</p>
+          </div>
+
+          <div class="controls">
+            <label for="modality">Modality</label>
+            <select id="modality" name="modality">
+              <option value="auto" selected>Auto detect</option>
+              <option value="image">Image</option>
+              <option value="audio">Audio</option>
+              <option value="video">Video</option>
+            </select>
+
+            <button id="analyzeBtn" type="submit">Run Forensic Scan</button>
+          </div>
+        </form>
+
+        <div id="status" class="status" aria-live="polite"></div>
+      </section>
+
+      <section id="resultCard" class="result panel hidden reveal">
+        <div class="result-head">
+          <h2>Assessment</h2>
+          <span id="badge" class="badge">Pending</span>
+        </div>
+
+        <div class="metrics">
+          <div class="metric">
+            <span>Deepfake Score</span>
+            <strong id="deepfakeScore">0%</strong>
+          </div>
+          <div class="metric">
+            <span>Confidence</span>
+            <strong id="confidence">0%</strong>
+          </div>
+          <div class="metric">
+            <span>Detected Modality</span>
+            <strong id="detectedModality">-</strong>
+          </div>
+        </div>
+
+        <div class="meter-wrap">
+          <div class="meter-labels">
+            <span>Likely Real</span>
+            <span>Likely Deepfake</span>
+          </div>
+          <div class="meter">
+            <div id="meterFill" class="meter-fill"></div>
+          </div>
+        </div>
+
+        <div>
+          <h3>Indicators</h3>
+          <ul id="indicators" class="indicators"></ul>
+        </div>
+
+        <div class="brief-wrap">
+          <h3>Brief Analysis</h3>
+          <p id="briefAnalysis" class="brief-analysis">
+            Waiting for results.
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <script src="/static/app.js" defer></script>
+  </body>
+</html>
