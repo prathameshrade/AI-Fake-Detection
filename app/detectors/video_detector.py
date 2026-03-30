@@ -28,6 +28,9 @@ class VideoDetector:
                     deepfake_score=0.5,
                     confidence=0.4,
                     indicators=["Could not decode video frames"],
+                    details={
+                        "decoded_frame_count": 0.0,
+                    },
                 )
 
             sample_count = min(16, max(6, total // 12))
@@ -62,6 +65,10 @@ class VideoDetector:
                     deepfake_score=0.5,
                     confidence=0.4,
                     indicators=["No valid frames sampled"],
+                    details={
+                        "sampled_frames_requested": float(sample_count),
+                        "sampled_frames_decoded": 0.0,
+                    },
                 )
 
             frame_mean = float(np.mean(frame_scores))
@@ -90,6 +97,15 @@ class VideoDetector:
                 deepfake_score=score,
                 confidence=confidence,
                 indicators=indicators,
+                details={
+                    "sampled_frames_requested": float(sample_count),
+                    "sampled_frames_decoded": float(len(frame_scores)),
+                    "frame_score_mean": round(frame_mean, 6),
+                    "frame_score_std": round(frame_var, 6),
+                    "temporal_motion_mean": round(temporal_motion, 6),
+                    "temporal_inconsistency_signal": round(float(temporal_score), 6),
+                    "motion_smoothness_signal": round(float(motion_score), 6),
+                },
             )
         finally:
             if os.path.exists(tmp_path):

@@ -45,6 +45,14 @@ class ImageDetector:
             deepfake_score=score,
             confidence=confidence,
             indicators=indicators,
+            details={
+                "laplacian_variance": round(lap_var, 3),
+                "high_frequency_ratio": round(hf_ratio, 6),
+                "jpeg_blockiness": round(blockiness, 4),
+                "blur_signal": round(float(blur_score), 6),
+                "frequency_signal": round(float(hf_score), 6),
+                "compression_signal": round(float(block_score), 6),
+            },
         )
 
 

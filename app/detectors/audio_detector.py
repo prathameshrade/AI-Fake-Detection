@@ -15,6 +15,9 @@ class AudioDetector:
                 deepfake_score=0.5,
                 confidence=0.5,
                 indicators=["Audio is too short for robust analysis"],
+                details={
+                    "duration_seconds": round(len(y) / float(sr), 3),
+                },
             )
 
         indicators: list[str] = []
@@ -47,6 +50,15 @@ class AudioDetector:
             deepfake_score=score,
             confidence=confidence,
             indicators=indicators,
+            details={
+                "duration_seconds": round(len(y) / float(sr), 3),
+                "spectral_flatness_mean": round(flatness, 6),
+                "zcr_variance": round(zcr_var, 6),
+                "spectral_centroid_variance": round(centroid_var, 3),
+                "flatness_signal": round(float(flatness_score), 6),
+                "zcr_signal": round(float(zcr_score), 6),
+                "centroid_signal": round(float(centroid_score), 6),
+            },
         )
 
 

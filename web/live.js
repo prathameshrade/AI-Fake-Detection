@@ -8,6 +8,7 @@ const liveVerdict = document.getElementById("liveVerdict");
 const liveScore = document.getElementById("liveScore");
 const liveConfidence = document.getElementById("liveConfidence");
 const liveBrief = document.getElementById("liveBrief");
+const liveSource = document.getElementById("liveSource");
 
 let mediaStream = null;
 let timerId = null;
@@ -22,17 +23,47 @@ async function startCameraAnalysis() {
   }
 
   try {
-    mediaStream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: "user" },
+    // Mobile and desktop camera constraints
+    const constraints = {
+      video: {
+        facingMode: "user",
+        width: { ideal: 1280 },
+        height: { ideal: 720 },
+      },
       audio: false,
-    });
+    };
+
+    mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
     video.srcObject = mediaStream;
+    
+    // Handle orientation changes on mobile
+    window.addEventListener("orientationchange", () => {
+      if (mediaStream) {
+        setTimeout(() => {
+          video.width = video.videoWidth;
+          video.height = video.videoHeight;
+        }, 100);
+      }
+    });
+
     startBtn.disabled = true;
     stopBtn.disabled = false;
     setLiveStatus("Camera active. Running periodic frame analysis...");
     startTimer();
   } catch (err) {
-    setLiveStatus(`Could not access camera: ${err.message || "unknown error"}`, true);
+    const errorMsg = err.message || "unknown error";
+    let userMsg = `Could not access camera: ${errorMsg}`;
+    
+    // Provide better error messages for mobile
+    if (errorMsg.includes("Permission denied")) {
+      userMsg = "Camera permission denied. Please allow camera access in settings.";
+    } else if (errorMsg.includes("NotAllowedError")) {
+      userMsg = "Camera access not allowed. Check app permissions.";
+    } else if (errorMsg.includes("NotFoundError")) {
+      userMsg = "No camera device found on this device.";
+    }
+    
+    setLiveStatus(userMsg, true);
   }
 }
 
@@ -82,10 +113,15 @@ async function analyzeCurrentFrame() {
     const blob = await captureFrameBlob();
     const body = new FormData();
     body.append("file", blob, "frame.jpg");
+    body.append("use_google", "true");
+    const telemetryHeaders = window.SignalScopeClient?.headers || {};
 
     const res = await fetch("/analyze-frame", {
       method: "POST",
       body,
+      headers: telemetryHeaders,
+      // Add timeout for mobile networks
+      signal: AbortSignal.timeout(15000),
     });
 
     if (!res.ok) {
@@ -98,7 +134,11 @@ async function analyzeCurrentFrame() {
     liveVerdict.textContent = data.label || "-";
     liveScore.textContent = `${scorePct}%`;
     liveConfidence.textContent = `${confPct}%`;
-    liveBrief.textContent = buildBrief(data, scorePct, confPct);
+    liveSource.textContent = data.analysis_source || "local";
+    liveBrief.textContent = data.analysis_summary || buildBrief(data, scorePct, confPct);
+    
+    // Add visual feedback on mobile
+    liveStatus.style.color = "#166534";
     setLiveStatus(`Live scan updated (${new Date().toLocaleTimeString()}).`);
   } catch (err) {
     setLiveStatus(err.message || "Live analysis failed.", true);

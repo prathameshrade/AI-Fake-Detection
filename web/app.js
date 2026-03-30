@@ -5,23 +5,28 @@ const modality = document.getElementById("modality");
 const statusEl = document.getElementById("status");
 const resultCard = document.getElementById("resultCard");
 const badge = document.getElementById("badge");
+const riskLevel = document.getElementById("riskLevel");
 const deepfakeScore = document.getElementById("deepfakeScore");
 const confidence = document.getElementById("confidence");
 const detectedModality = document.getElementById("detectedModality");
 const indicators = document.getElementById("indicators");
+const forensicDetails = document.getElementById("forensicDetails");
 const meterFill = document.getElementById("meterFill");
 const analyzeBtn = document.getElementById("analyzeBtn");
 const dropzone = document.getElementById("dropzone");
 const briefAnalysis = document.getElementById("briefAnalysis");
+const summarySource = document.getElementById("summarySource");
 
 fileInput.addEventListener("change", () => {
   const file = fileInput.files?.[0];
   fileName.textContent = file ? file.name : "No file selected";
 });
 
+// Improve dropzone on mobile
 ["dragenter", "dragover"].forEach((eventName) => {
   dropzone.addEventListener(eventName, (ev) => {
     ev.preventDefault();
+    ev.stopPropagation();
     dropzone.classList.add("dragover");
   });
 });
@@ -29,12 +34,31 @@ fileInput.addEventListener("change", () => {
 ["dragleave", "drop"].forEach((eventName) => {
   dropzone.addEventListener(eventName, (ev) => {
     ev.preventDefault();
+    ev.stopPropagation();
     dropzone.classList.remove("dragover");
   });
 });
 
+// Better touch feedback
+dropzone.addEventListener("touchstart", () => {
+  dropzone.style.opacity = "0.95";
+});
+
+dropzone.addEventListener("touchend", () => {
+  dropzone.style.opacity = "1";
+});
+
+// Prevent double-click on buttons
+let submitInProgress = false;
+
 form.addEventListener("submit", async (ev) => {
   ev.preventDefault();
+
+  // Prevent double-submit on mobile
+  if (submitInProgress) {
+    return;
+  }
+
   const file = fileInput.files?.[0];
   if (!file) {
     setStatus("Select a file before analyzing.", true);
@@ -46,14 +70,18 @@ form.addEventListener("submit", async (ev) => {
   if (modality.value !== "auto") {
     body.append("modality", modality.value);
   }
+  body.append("use_google", "true");
 
   setStatus("Analyzing media, please wait...");
   analyzeBtn.disabled = true;
+  submitInProgress = true;
 
   try {
+    const telemetryHeaders = window.SignalScopeClient?.headers || {};
     const res = await fetch("/analyze", {
       method: "POST",
       body,
+      headers: telemetryHeaders,
     });
 
     if (!res.ok) {
@@ -68,6 +96,7 @@ form.addEventListener("submit", async (ev) => {
     setStatus(err.message || "Unexpected error during analysis.", true);
   } finally {
     analyzeBtn.disabled = false;
+    submitInProgress = false;
   }
 });
 
@@ -79,6 +108,7 @@ function renderResult(data) {
 
   deepfakeScore.textContent = `${scorePct}%`;
   confidence.textContent = `${confPct}%`;
+  riskLevel.textContent = data.risk_level || "-";
   detectedModality.textContent = capitalize(data.modality || "unknown");
 
   badge.textContent = data.label || "Unknown";
@@ -106,7 +136,23 @@ function renderResult(data) {
     indicators.appendChild(li);
   });
 
-  briefAnalysis.textContent = buildBriefAnalysis(data, scorePct, confPct);
+  forensicDetails.innerHTML = "";
+  const details = data.forensic_details && typeof data.forensic_details === "object" ? data.forensic_details : {};
+  const entries = Object.entries(details);
+  if (!entries.length) {
+    const li = document.createElement("li");
+    li.textContent = "No forensic metrics returned.";
+    forensicDetails.appendChild(li);
+  } else {
+    entries.forEach(([key, value]) => {
+      const li = document.createElement("li");
+      li.textContent = `${prettifyKey(key)}: ${value}`;
+      forensicDetails.appendChild(li);
+    });
+  }
+
+  summarySource.textContent = `Summary source: ${String(data.analysis_source || "local")}`;
+  briefAnalysis.textContent = data.analysis_summary || buildBriefAnalysis(data, scorePct, confPct);
 }
 
 function setStatus(message, isError = false) {
@@ -143,4 +189,10 @@ function buildBriefAnalysis(data, scorePct, confPct) {
     return `The scan found ${intensity} deepfake-like patterns with ${confidenceBand} confidence across ${indicatorCount} indicator(s). Review source provenance before trusting this media.`;
   }
   return `The scan found ${intensity} manipulation signals and currently classifies this as likely real with ${confidenceBand} confidence. Keep normal verification checks for critical content.`;
+}
+
+function prettifyKey(key) {
+  return String(key)
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (c) => c.toUpperCase());
 }

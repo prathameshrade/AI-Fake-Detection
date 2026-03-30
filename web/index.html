@@ -2,7 +2,12 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="SignalScope" />
+    <meta name="theme-color" content="#f8f3e8" />
+    <meta name="description" content="Deepfake Analysis Studio - Run fast forensic checks on media" />
     <title>SignalScope | Deepfake Analysis Studio</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -14,6 +19,8 @@
   </head>
   <body>
     <div class="bg-grid" aria-hidden="true"></div>
+    <div class="bg-photo" aria-hidden="true"></div>
+    <div class="bg-photo-2" aria-hidden="true"></div>
     <div class="glow glow-a" aria-hidden="true"></div>
     <div class="glow glow-b" aria-hidden="true"></div>
     <main class="page">
@@ -68,6 +75,10 @@
 
         <div class="metrics">
           <div class="metric">
+            <span>Risk Level</span>
+            <strong id="riskLevel">-</strong>
+          </div>
+          <div class="metric">
             <span>Deepfake Score</span>
             <strong id="deepfakeScore">0%</strong>
           </div>
@@ -96,8 +107,14 @@
           <ul id="indicators" class="indicators"></ul>
         </div>
 
+        <div>
+          <h3>Forensic Details</h3>
+          <ul id="forensicDetails" class="indicators"></ul>
+        </div>
+
         <div class="brief-wrap">
           <h3>Brief Analysis</h3>
+          <p id="summarySource" class="summary-source">Summary source: local</p>
           <p id="briefAnalysis" class="brief-analysis">
             Waiting for results.
           </p>
@@ -105,6 +122,8 @@
       </section>
     </main>
 
+    <script src="/static/telemetry.js" defer></script>
+    <script src="/static/mobile-helper.js" defer></script>
     <script src="/static/app.js" defer></script>
   </body>
 </html>

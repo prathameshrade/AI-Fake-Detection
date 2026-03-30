@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from dataclasses import field
 
 
 @dataclass
@@ -7,6 +8,7 @@ class DetectorOutput:
     deepfake_score: float
     confidence: float
     indicators: list[str]
+    details: dict[str, float] = field(default_factory=dict)
 
     @property
     def label(self) -> str:
